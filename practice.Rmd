@@ -1,0 +1,189 @@
+---
+title: "Indo"
+author: "kamryn"
+date: "2023-06-13"
+output: html_document
+---
+```{r}
+library(naniar)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+nd_gain_data <- read.csv("data/nd-gain-data/joined_data/nd-gain-joined.csv")
+```
+
+round value column for two numbers after the decimal
+```{r}
+nd_gain_data$value <- round(nd_gain_data$value, digits = 2)
+```
+
+select year
+```{r}
+nd_gain_data_2020 <- nd_gain_data %>%  
+  filter(year== 2020)
+```
+
+example
+
+```{r}
+dataset_2020_wider_numeric <- dataset_2020_wider %>% 
+  select(-ISO3, )
+```
+
+```{r}
+dataset_2020_wider <- dataset_2020_wider %>% 
+  mutate(sids_context = ifelse(sids_))
+```
+```{r}
+
+```
+
+
+pivot wider
+```{r}
+nd_gain_data_2020_wider <- nd_gain_data_2020 %>% 
+  pivot_wider(names_from = indicator,
+              values_from = value)
+```
+
+
+
+scatter plot
+```{r}
+ggplot(data = nd_gain_data_2020_wider, aes(x = education,
+                                     y = human_development_index,
+                                     color = sids_context)) +
+  geom_point() + 
+  geom_smooth() +
+  labs(title = "Education and Human Development Index, ND-GAIN 2020",
+       x = "education",
+       y = "human develpment index") +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(data = nd_gain_data_2020_wider, aes(x = paved_roads,
+                                           y = quality_of_trade_and_transport_infrastructure,
+                                           color = sids_context)) +
+  geom_point() +
+  geom_smooth() +
+  labs(title = "paved roads and quality of trade and transport infrastructure, ND-GAIN 2020",
+       x = "paved roads",
+       y = "quality of trade and transport infrastructure") +
+  theme_minimal()
+```
+
+```{r}
+nd_gain_joined_data <- nd_gain_data %>% 
+  clean_names()
+```
+
+```{r}
+table(nd_gain_data$iso3)
+```
+
+
+```{r}
+medical_staff_data <- nd_gain_data %>% 
+  filter(indicator=="medical_staff")
+```
+
+
+```{r}
+paved_roads_data <- nd_gain_data %>% 
+  filter(indicator=="paved_roads")
+```
+
+
+```{r}
+
+ggplot(data = paved_roads_data, aes(x = value)) +
+  geom_histogram()
+```
+
+
+```{r}
+
+ggplot(data = medical_staff_data, aes(x = value)) +
+  geom_histogram()
+```
+
+
+Now let's explore the relationships between our numeric columns in the dataset with a correlation matrix
+
+Select numeric columns for correlations
+
+```{r}
+nd_gain_data_numeric <- nd_gain_data_2020_wider %>% select(-ISO3, -Name, -year, -sids_context, -innovation)
+```
+
+Create a correlation matrix
+
+```{r}
+cor_matrix <- cor(nd_gain_data_numeric[complete.cases(nd_gain_data_numeric), ], use = "pairwise.complete.obs")
+```
+```{r}
+sum(is.na(dataset_2020_wider_sids_numeric$))
+```
+
+
+Plot the correlation matrix
+
+```{r}
+corrplot <- ggcorrplot(cor_matrix, type = "lower", outline.color = "white") +
+  theme(axis.text.x = element_text(size = 3),
+        axis.text.y = element_text(size = 3))
+corrplot
+```
+Make the correlation plot interactive
+
+```{r}
+ggplot(data = penguins_data, aes(x = culmen_depth_mm,
+                                 y = flipper_length_mm))
+```
+
+```{r}
+ggplotly(corrplot)
+```
+
+
+fliter for just sids
+
+```{r}
+dataset_2020_wider_sids <- nd_gain_data_2020_wider %>% 
+  filter(sids_context == "sids")
+```
+
+select only the numeric columns
+```{r}
+dataset_2020_wider_sids_numeric <- dataset_2020_wider_sids %>% 
+  select(-ISO3, -Name, -year, -sids_context)
+```
+
+```{r}
+cor_matrix <- cor(dataset_2020_wider_sids_numeric, use = "pairwise.complete.obs")
+```
+```{r}
+corrplot <- ggcorrplot(cor_matrix, type = "lower", outline.color = "white") +
+  theme(axis.text.x = element_text(size = 3),
+        axis.text.y = element_text(size = 3))
+corrplot
+```
+
+```{r}
+ggplot(data = nd_gain_data_2020_wider, aes(x = paved_roads,
+                                           y = quality_of_trade_and_transport_infrastructure,
+                                           color = sids_context)) +
+  geom_point() +
+  geom_smooth() +
+  labs(title = "paved roads and quality of trade and transport infrastructure, ND-GAIN 2020",
+       x = "paved roads",
+       y = "quality of trade and transport infrastructure") +
+  theme_minimal()
+```
+
